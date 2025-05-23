@@ -1,19 +1,30 @@
 import os, json, requests
 from functools import lru_cache
 from typing import List, Dict
-from eth_abi import decode_abi
+try:
+    # eth_abi < 4.x exposes decode_abi at the package root
+    from eth_abi import decode_abi
+except ImportError:  # eth_abi >= 4.x
+    from eth_abi.abi import decode as decode_abi
 from web3 import Web3
 
-API_KEY   = os.getenv("ETHERSCAN_API_KEY")
-BASE_V2   = "https://api.etherscan.io/v2/api"
-w3        = Web3()
+API_KEY = os.getenv("ETHERSCAN_API_KEY")
+if not API_KEY:
+    raise EnvironmentError("Missing ETHERSCAN_API_KEY environment variable")
+
+# base endpoint for the multi-chain etherscan API
+BASE_URL = "https://api.etherscan.io/api"
+w3 = Web3()
 
 # ---------- helpers ----------------------------------------------------------
 @lru_cache(maxsize=None)
 def fetch_abi(address: str, chainid: int = 1) -> list:
-    url = f"{BASE_V2}?chainid={chainid}&module=contract&action=getabi&address={address}&apikey={API_KEY}"
+    url = (
+        f"{BASE_URL}?chainid={chainid}&module=contract&action=getabi"
+        f"&address={address}&apikey={API_KEY}"
+    )
     resp = requests.get(url, timeout=10).json()
-    if resp.get("status") == "1":          # verified
+    if resp.get("status") == "1":  # verified contract
         return json.loads(resp["result"])
     raise ValueError(f"ABI not available for {address}")
 
@@ -48,8 +59,25 @@ def enrich(tx: Dict, chainid: int = 1) -> Dict:
     except Exception as e:
         return {**tx, "method": "UNKNOWN", "args": [], "error": str(e)}
 
-# ---------- usage ------------------------------------------------------------
-blob = "0x0087...000003"          # your MultiSend transactions blob
-dec  = [enrich(t) for t in decode_multisend(blob)]
-for t in dec:
-    print(t["method"], t["args"])
+# ---------- CLI --------------------------------------------------------------
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(
+        description="Decode a Safe multisend transaction blob"
+    )
+    parser.add_argument(
+        "blob",
+        help="Hex encoded multisend transaction data",
+    )
+    parser.add_argument(
+        "--chainid",
+        type=int,
+        default=1,
+        help="Chain ID used for ABI lookups (default: 1 for Ethereum mainnet)",
+    )
+    args = parser.parse_args()
+
+    decoded = [enrich(t, args.chainid) for t in decode_multisend(args.blob)]
+    print(json.dumps(decoded, indent=2))
+

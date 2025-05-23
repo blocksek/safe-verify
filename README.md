@@ -7,21 +7,9 @@ This repository contains a small Python script that decodes [Safe](https://safe.
 - Python 3.9 or later
 - Dependencies: `requests`, `eth-abi`, `web3`
 
-It is recommended to use a Python virtual environment when running the
-decoder locally. Create and activate one with:
-
-```bash
-python3 -m venv venv
-source venv/bin/activate
-```
-
-Then install the dependencies:
-
 ```bash
 pip install requests eth-abi web3
 ```
-
-You can leave the environment with `deactivate` when you're done.
 
 ## Usage
 

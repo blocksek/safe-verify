@@ -1,10 +1,7 @@
 import os, json, requests
 from functools import lru_cache
 from typing import List, Dict
-try:
-    from eth_abi import decode_abi
-except ImportError:  # eth-abi>=5
-    from eth_abi.abi import decode as decode_abi
+from eth_abi.abi import decode as decode_abi
 from web3 import Web3
 
 API_KEY = os.getenv("ETHERSCAN_API_KEY")

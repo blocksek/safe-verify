@@ -7,19 +7,6 @@ This repository contains a small Python script that decodes [Safe](https://safe.
 - Python 3.9 or later
 - Dependencies: `requests`, `eth-abi`, `web3`
 
-### Virtual environment
-
-You can isolate the dependencies using a virtual environment:
-
-```bash
-python -m venv venv
-source venv/bin/activate
-pip install requests eth-abi web3
-```
-
-When you are done, deactivate it with `deactivate`.
-
-If you prefer to install packages globally, simply run:
 
 ```bash
 pip install requests eth-abi web3

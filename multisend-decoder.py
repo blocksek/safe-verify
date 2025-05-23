@@ -1,11 +1,7 @@
 import os, json, requests
 from functools import lru_cache
 from typing import List, Dict
-try:
-    # eth_abi < 4.x exposes decode_abi at the package root
-    from eth_abi import decode_abi
-except ImportError:  # eth_abi >= 4.x
-    from eth_abi.abi import decode as decode_abi
+from eth_abi.abi import decode as decode_abi
 from web3 import Web3
 
 API_KEY = os.getenv("ETHERSCAN_API_KEY")
@@ -43,7 +39,7 @@ def decode_multisend(raw_hex: str) -> List[Dict]:
         dlen    = int.from_bytes(blob[i:i+32], "big")          ; i += 32
         data    = blob[i:i+dlen]           ; i += dlen
         out.append({"operation": op, "to": to, "value": value,
-                    "data": "0x"+data.hex(), "data_raw": data})
+                    "data": "0x" + data.hex()})
     return out
 
 # ---------- abi-aware --------------------------------------------------------
@@ -54,7 +50,11 @@ def enrich(tx: Dict, chainid: int = 1) -> Dict:
         entry = next(e for e in abi if e.get("type")=="function" and
                      "0x"+sig_from_abi(e) == sig)
         arg_t = [i["type"] for i in entry["inputs"]]
-        args  = decode_abi(arg_t, bytes.fromhex(tx["data"][10:]))
+        raw_args = decode_abi(arg_t, bytes.fromhex(tx["data"][10:]))
+        args = [
+            ("0x" + a.hex()) if isinstance(a, (bytes, bytearray)) else a
+            for a in raw_args
+        ]
         return {**tx, "method": entry["name"], "args": args}
     except Exception as e:
         return {**tx, "method": "UNKNOWN", "args": [], "error": str(e)}

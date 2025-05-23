@@ -7,9 +7,11 @@ This repository contains a small Python script that decodes [Safe](https://safe.
 - Python 3.9 or later
 - Dependencies: `requests`, `eth-abi`, `web3`
 
+
 ```bash
 pip install requests eth-abi web3
 ```
+
 
 ## Usage
 

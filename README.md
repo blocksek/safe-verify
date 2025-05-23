@@ -6,18 +6,7 @@ This repository contains a small Python script that decodes [Safe](https://safe.
 
 - Python 3.9 or later
 - Dependencies: `requests`, `eth-abi`, `web3`
-
-It's recommended to use a virtual environment so that dependencies don't affect
-your global Python installation.
-
-Create and activate one with:
-
-```bash
-python -m venv venv
-source venv/bin/activate
-```
-
-Install the dependencies with:
+- 
 
 ```bash
 pip install requests eth-abi web3
@@ -64,9 +53,3 @@ This prints something like:
 ```
 
 The script requires network access to `api.etherscan.io` in order to fetch verified contract ABIs.
-
-When you're finished you can exit the virtual environment with:
-
-```bash
-deactivate
-```
